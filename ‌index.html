@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRIFRIENDS 🧳</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Nunito', sans-serif; }
+        
+        .gradient-primary { background: linear-gradient(135deg, #FFD369 0%, #FF6F91 100%); }
+        .gradient-secondary { background: linear-gradient(135deg, #6A67CE 0%, #2D4059 100%); }
+        .gradient-card { background: linear-gradient(135deg, rgba(255, 211, 105, 0.1) 0%, rgba(255, 111, 145, 0.1) 100%); }
+        
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateY(0);
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .floating-btn {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            z-index: 50;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .progress-bar {
+            background: linear-gradient(90deg, #FFD369 0%, #FF6F91 100%);
+            height: 8px;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        .emoji-bounce {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 53%, 80%, 100% { transform: translateY(0); }
+            40%, 43% { transform: translateY(-30px); }
+            70% { transform: translateY(-15px); }
+            90% { transform: translateY(-4px); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 111, 145, 0.2);
+            z-index: 40;
+        }
+        
+        .nav-item {
+            transition: all 0.3s ease;
+        }
+        
+        .nav-item.active {
+            color: #FF6F91;
+            transform: scale(1.1);
+        }
+        
+        /* Dark mode */
+        .dark .bottom-nav {
+            background: rgba(45, 64, 89, 0.95);
+            border-top: 1px solid rgba(106, 103, 206, 0.2);
+        }
+        
+        .dark .gradient-card {
+            background: linear-gradient(135deg, rgba(106, 103, 206, 0.1) 0%, rgba(45, 64, 89, 0.1) 100%);
+        }
+        
+        .challenge-card {
+            background: linear-gradient(135deg, #FFD369 0%, #FF6F91 100%);
+            border-radius: 20px;
+            padding: 24px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .challenge-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(0.8); opacity: 1; }
+            100% { transform: scale(1.2); opacity: 0; }
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 16px;
+        }
+        
+        .stat-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #6A67CE 0%, #FFD369 100%);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-50 via-pink-50 to-yellow-50 min-h-screen pb-20 dark:from-gray-900 dark:via-purple-900 dark:to-indigo-900 transition-colors duration-300">
+    
+    <!-- Dark Mode Toggle -->
+    <button onclick="toggleDarkMode()" class="fixed top-4 right-4 z-50 p-3 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg">
+        <span id="darkModeIcon">🌙</span>
+    </button>
+    
+    <!-- Welcome Screen -->
+    <div id="welcomeScreen" class="min-h-screen flex flex-col justify-center items-center p-6 fade-in">
+        <div class="text-center mb-8">
+            <div class="text-6xl mb-4 emoji-bounce">🧳</div>
+            <h1 class="text-4xl font-bold text-gray-800 dark:text-white mb-2">TRIFRIENDS</h1>
+            <p class="text-gray-600 dark:text-gray-300 text-lg">Votre carnet de voyage privé</p>
+        </div>
+        
+        <div class="w-full max-w-md space-y-4">
+            <h2 class="text-xl font-semibold text-gray-800 dark:text-white text-center mb-6">Qui voyage avec vous ? 👥</h2>
+            
+            <div id="friendInputs" class="space-y-3">
+                <input type="text" placeholder="Votre nom + emoji (ex: Sarah 🌟)" 
+                       class="w-full p-4 rounded-2xl border-2 border-purple-200 focus:border-pink-400 outline-none bg-white/70 backdrop-blur-sm dark:bg-gray-800/70 dark:border-gray-600 dark:text-white transition-all duration-300">
+                <input type="text" placeholder="Ami(e) 2 + emoji (ex: Alex 🔥)" 
+                       class="w-full p-4 rounded-2xl border-2 border-purple-200 focus:border-pink-400 outline-none bg-white/70 backdrop-blur-sm dark:bg-gray-800/70 dark:border-gray-600 dark:text-white transition-all duration-300">
+                <input type="text" placeholder="Ami(e) 3 + emoji (optionnel)" 
+                       class="w-full p-4 rounded-2xl border-2 border-purple-200 focus:border-pink-400 outline-none bg-white/70 backdrop-blur-sm dark:bg-gray-800/70 dark:border-gray-600 dark:text-white transition-all duration-300">
+                <input type="text" placeholder="Ami(e) 4 + emoji (optionnel)" 
+                       class="w-full p-4 rounded-2xl border-2 border-purple-200 focus:border-pink-400 outline-none bg-white/70 backdrop-blur-sm dark:bg-gray-800/70 dark:border-gray-600 dark:text-white transition-all duration-300">
+                <input type="text" placeholder="Ami(e) 5 + emoji (optionnel)" 
+                       class="w-full p-4 rounded-2xl border-2 border-purple-200 focus:border-pink-400 outline-none bg-white/70 backdrop-blur-sm dark:bg-gray-800/70 dark:border-gray-600 dark:text-white transition-all duration-300">
+            </div>
+            
+            <button onclick="setupFriends()" class="w-full p-4 gradient-primary text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 mt-6">
+                🚀 Commencer l'aventure !
+            </button>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="mainApp" class="hidden">
+        
+        <!-- Header with Progress -->
+        <div class="p-6 pb-4">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800 dark:text-white">TRIFRIENDS 🧳</h1>
+                    <div class="flex items-center space-x-2 mt-1">
+                        <span id="dayCounter" class="text-sm text-gray-600 dark:text-gray-300">Jour 1/14</span>
+                        <span class="text-xs text-gray-500">• Allemagne 🇩🇪</span>
+                    </div>
+                </div>
+                <div id="friendsDisplay" class="flex -space-x-2">
+                    <!-- Friend avatars will be populated here -->
+                </div>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-4">
+                <div id="progressBar" class="progress-bar w-1/14 rounded-full"></div>
+            </div>
+        </div>
+
+        <!-- Today's Challenge Preview -->
+        <div class="px-6 mb-6">
+            <div class="challenge-card card-hover cursor-pointer" onclick="showSection('challenges')">
+                <div class="relative z-10">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-lg font-bold">🎯 Défi du jour</h3>
+                        <span class="text-xs bg-white/20 px-2 py-1 rounded-full">Nouveau !</span>
+                    </div>
+                    <p id="todayChallenge" class="text-sm opacity-90 leading-relaxed">
+                        Chargement du défi d'aujourd'hui...
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="px-6 mb-6">
+            <div class="grid grid-cols-4 gap-3">
+                <div class="text-center">
+                    <div class="stat-circle mx-auto mb-2">
+                        <span class="text-white font-bold text-lg" id="totalChallenges">0</span>
+                    </div>
+                    <span class="text-xs text-gray-600 dark:text-gray-400">Défis</span>
+                </div>
+                <div class="text-center">
+                    <div class="stat-circle mx-auto mb-2 bg-gradient-to-br from-pink-400 to-orange-400">
+                        <span class="text-white font-bold text-lg" id="totalPhotos">0</span>
+                    </div>
+                    <span class="text-xs text-gray-600 dark:text-gray-400">Photos</span>
+                </div>
+                <div class="text-center">
+                    <div class="stat-circle mx-auto mb-2 bg-gradient-to-br from-green-400 to-blue-400">
+                        <span class="text-white font-bold text-lg" id="totalMemories">0</span>
+                    </div>
+                    <span class="text-xs text-gray-600 dark:text-gray-400">Souvenirs</span>
+                </div>
+                <div class="text-center">
+                    <div class="stat-circle mx-auto mb-2 bg-gradient-to-br from-purple-400 to-pink-400">
+                        <span class="text-white font-bold text-lg" id="totalJournal">0</span>
+                    </div>
+                    <span class="text-xs text-gray-600 dark:text-gray-400">Journal</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu Cards -->
+        <div class="px-6 space-y-4 mb-6">
+            
+            <div class="glass-card p-4 card-hover cursor-pointer" onclick="showSection('journal')">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-400 rounded-xl flex items-center justify-center">
+                        <span class="text-white text-xl">📝</span>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-semibold text-gray-800 dark:text-white">Journal Secret</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Partagez vos pensées du jour</p>
+                    </div>
+                    <span class="text-gray-400">→</span>
+                </div>
+            </div>
+
+            <div class="glass-card p-4 card-hover cursor-pointer" onclick="showSection('gallery')">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-cyan-400 rounded-xl flex items-center justify-center">
+                        <span class="text-white text-xl">📸</span>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-semibold text-gray-800 dark:text-white">Galerie Photos</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Vos moments en images</p>
+                    </div>
+                    <span class="text-gray-400">→</span>
+                </div>
+            </div>
+
+            <div class="glass-card p-4 card-hover cursor-pointer" onclick="showSection('games')">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-400 rounded-xl flex items-center justify-center">
+                        <span class="text-white text-xl">🎮</span>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-semibold text-gray-800 dark:text-white">Mini Jeux</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Qui a dit ça ? & plus encore</p>
+                    </div>
+                    <span class="text-gray-400">→</span>
+                </div>
+            </div>
+
+            <div class="glass-card p-4 card-hover cursor-pointer" onclick="showSection('memories')">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-gradient-to-br from-orange-400 to-red-400 rounded-xl flex items-center justify-center">
+                        <span class="text-white text-xl">🎁</span>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-semibold text-gray-800 dark:text-white">Boîte à Souvenirs</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Mot + emoji + moment du jour</p>
+                    </div>
+                    <span class="text-gray-400">→</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export PDF Floating Button -->
+    <button onclick="exportToPDF()" class="floating-btn w-14 h-14 gradient-secondary rounded-full shadow-lg flex items-center justify-center text-white text-xl hover:shadow-xl transition-all duration-300">
+        📄
+    </button>
+
+    <!-- Challenge Section -->
+    <div id="challengesSection" class="hidden min-h-screen p-6 fade-in">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-white">🎯 Défis</h2>
+            <button onclick="showSection('main')" class="p-2 rounded-xl bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 transition-colors">
+                ←
+            </button>
+        </div>
+        
+        <div class="challenge-card mb-6">
+            <div class="relative z-10">
+                <h3 class="text-xl font-bold mb-4">Défi d'Aujourd'hui</h3>
+                <p id="challengeText" class="text-lg mb-6 leading-relaxed">Chargement...</p>
+                <div class="flex gap-3">
+                    <button onclick="completeChallenge()" class="flex-1 bg-white/20 backdrop-blur-sm text-white font-semibold py-3 px-4 rounded-xl hover:bg-white/30 transition-all duration-300">
+                        ✅ Réussi !
+                    </button>
+                    <button onclick="newChallenge()" class="px-6 bg-white/10 backdrop-blur-sm text-white font-semibold py-3 rounded-xl hover:bg-white/20 transition-all duration-300">
+                        🔄
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="completedChallenges" class="space-y-3">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-3">Défis Réalisés</h3>
+        </div>
+    </div>
+
+    <!-- Journal Section -->
+    <div id="journalSection" class="hidden min-h-screen p-6 fade-in">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-white">📝 Journal</h2>
+            <button onclick="showSection('main')" class="p-2 rounded-xl bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 transition-colors">
+                ←
+            </button>
+        </div>
+        
+        <div class="glass-card p-6 mb-6">
+            <select id="journalAuthor" class="w-full p-3 rounded-xl border-2 border-purple-200 focus:border-pink-400 outline-none bg-white/70 dark:bg-gray-800/70 dark:border-gray-600 dark:text-white mb-4">
+                <option value="">Qui écrit ?</option>
+            </select>
+            <textarea id="journalText" placeholder="Raconte ta journée, tes découvertes, tes fous rires..." 
+                      class="w-full p-4 rounded-xl border-2 border-purple-200 focus:border-pink-400 outline-none bg-white/70 dark:bg-gray-800/70 dark:border-gray-600 dark:text-white h-32 resize-none"></textarea>
+            <button onclick="addJournalEntry()" class="w-full mt-4 p-3 gradient-primary text-white font-semibold rounded-xl hover:shadow-lg transition-all duration-300">
+                ✨ Ajouter au journal
+            </button>
+        </div>
+
+        <div id="journalEntries" class="space-y-4">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Vos souvenirs</h3>
+        </div>
+    </div>
+
+    <!-- Gallery Section -->
+    <div id="gallerySection" class="hidden min-h-screen p-6 fade-in">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-white">📸 Galerie</h2>
+            <button onclick="showSection('main')" class="p-2 rounded-xl bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 transition-colors">
+                ←
+            </button>
+        </div>
+        
+        <div class="glass-card p-6 mb-6">
+            <input type="file" id="photoInput" accept="image/*" class="hidden">
+            <button onclick="document.getElementById('photoInput').click()" class="w-full p-4 border-2 border-dashed border-purple-300 dark:border-purple-500 rounded-xl text-center hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors">
+                <div class="text-4xl mb-2">📷</div>
+                <div class="font-semibold text-gray-700 dark:text-gray-300">Ajouter une photo</div>
+            </button>
+            <input type="text" id="photoCaption" placeholder="Légende de votre photo..." 
+                   class="w-full mt-4 p-3 rounded-xl border-2 border-purple-200 focus:border-pink-400 outline-none bg-white/70 dark:bg-gray-800/70 dark:border-gray-600 dark:text-white">
+        </div>
+
+        <div id="photoGallery" class="grid grid-cols-2 gap-4">
+            <div class="col-span-2 text-center text-gray-500 dark:text-gray-400 py-8">
+                Aucune photo pour le moment...
+            </div>
+        </div>
+    </div>
+
+    <!-- Games Section -->
+    <div id="gamesSection" class="hidden min-h-screen p-6 fade-in">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-white">🎮 Mini Jeux</h2>
+            <button onclick="showSection('main')" class="p-2 rounded-xl bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 transition-colors">
+                ←
+            </button>
+        </div>
+        
+        <div class="space-y-6">
+            <!-- Who Said That -->
+            <div class="glass-card p-6">
+                <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-4">🗣️ "Qui a dit ça ?"</h3>
+                <textarea id="quoteInput" placeholder="Écris une phrase marrante que quelqu'un a dite..." 
+                          class="w-full p-3 rounded-xl border-2 border-purple-200 focus:border-pink-400 outline-none bg-white/70 dark:bg-gray-800/70 dark:border-gray-600 dark:text-white h-20 resize-none mb-4"></textarea>
+                <button onclick="addQuote()" class="w-full p-3 gradient-primary text-white font-semibold rounded-xl">
+                    Ajouter la Citation
+                </button>
+                <div id="quotes" class="mt-4 space-y-2"></div>
+            </div>
+
+            <!-- Never Have I Ever -->
+            <div class="glass-card p-6">
+                <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-4">🙈 "Je n'ai jamais..."</h3>
+                <input type="text" id="neverInput" placeholder="Je n'ai jamais..." 
+                       class="w-full p-3 rounded-xl border-2 border-purple-200 focus:border-pink-400 outline-none bg-white/70 dark:bg-gray-800/70 dark:border-gray-600 dark:text-white mb-4">
+                <button onclick="addNever()" class="w-full p-3 gradient-secondary text-white font-semibold rounded-xl">
+                    Ajouter
+                </button>
+                <div id="neverList" class="mt-4 space-y-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Memories Section -->
+    <div id="memoriesSection" class="hidden min-h-screen p-6 fade-in">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-white">🎁 Souvenirs</h2>
+            <button onclick="showSection('main')" class="p-2 rounded-xl bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 transition-colors">
+                ←
+            </button>
+        </div>
+        
+        <div class="glass-card p-6 mb-6">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Souvenir du Jour</h3>
+            <div class="space-y-4">
+                <select id="memoryAuthor" class="w-full p-3 rounded-xl border-2 border-purple-200 focus:border-pink-400 outline-none bg-white/70 dark:bg-gray-800/70 dark:border-gray-600 dark:text-white">
+                    <option value="">Qui es-tu ?</option>
+                </select>
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="text" id="wordOfDay" placeholder="Mot du jour" 
+                           class="p-3 rounded-xl border-2 border-purple-200 focus:border-pink-400 outline-none bg-white/70 dark:bg-gray-800/70 dark:border-gray-600 dark:text-white">
+                    <input type="text" id="emojiOfDay" placeholder="Emoji 😍" 
+                           class="p-3 rounded-xl border-2 border-purple-200 focus:border-pink-400 outline-none bg-white/70 dark:bg-gray-800/70 dark:border-gray-600 dark:text-white">
+                </div>
+                <textarea id="momentOfDay" placeholder="Raconte ton meilleur moment d'aujourd'hui..." 
+                          class="w-full p-3 rounded-xl border-2 border-purple-200 focus:border-pink-400 outline-none bg-white/70 dark:bg-gray-800/70 dark:border-gray-600 dark:text-white h-24 resize-none"></textarea>
+                <button onclick="addMemory()" class="w-full p-3 gradient-primary text-white font-semibold rounded-xl">
+                    💾 Sauvegarder
+                </button>
+            </div>
+        </div>
+
+        <div id="memoriesList" class="space-y-4">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Vos Souvenirs</h3>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <div class="flex justify-around items-center h-16">
+            <button onclick="showSection('main')" class="nav-item active flex flex-col items-center space-y-1">
+                <span class="text-xl">🏠</span>
+                <span class="text-xs">Accueil</span>
+            </button>
+            <button onclick="showSection('challenges')" class="nav-item flex flex-col items-center space-y-1">
+                <span class="text-xl">🎯</span>
+                <span class="text-xs">Défis</span>
+            </button>
+            <button onclick="showSection('journal')" class="nav-item flex flex-col items-center space-y-1">
+                <span class="text-xl">📝</span>
+                <span class="text-xs">Journal</span>
+            </button>
+            <button onclick="showSection('gallery')" class="nav-item flex flex-col items-center space-y-1">
+                <span class="text-xl">📸</span>
+                <span class="text-xs">Photos</span>
+            </button>
+            <button onclick="showSection('games')" class="nav-item flex flex-col items-center space-y-1">
+                <span class="text-xl">🎮</span>
+                <span class="text-xs">Jeux</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Global Variables
+        let friends = [];
+        let currentDay = 1;
+        let isDarkMode = false;
+        let challenges = [
+            "Fais une photo avec un Allemand inconnu en disant 'Guten Tag' 📸",
+            "Apprends à dire 'Où sont les toilettes ?' en allemand et utilise-le 🚽",
+            "Trouve un plat allemand que tu n'as jamais goûté et teste-le 🍕",
+            "Imite l'accent allemand pendant 5 minutes 🗣️",
+            "Fais deviner un mot marocain/français à un local 🇲🇦",
+            "Trouve quelque chose qui commence par 'Sch-' dans un magasin 🛍️",
+            "Prends une photo de groupe devant quelque chose de typiquement allemand 🏰",
+            "Essaie de commander quelque chose en allemand sans traducteur ☕",
+            "Trouve un Allemand qui connaît le Maroc et parle-lui 5 minutes 🌍",
+            "Apprends une chanson allemande (même juste le refrain) 🎵",
+            "Fais un compliment en allemand à un inconnu 💕",
+            "Trouve la spécialité locale de votre ville actuelle 🍴",
+            "Prends une photo avec un panneau écrit en allemand rigolo 📋",
+            "Essaie de négocier un prix en allemand (même pour rigoler) 💰"
+        ];
+
+        // Dark Mode Toggle
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            document.documentElement.classList.toggle('dark');
+            document.getElementById('darkModeIcon').textContent = isDarkMode ? '☀️' : '🌙';
+            localStorage.setItem('trifriends_dark_mode', isDarkMode);
+        }
+
+        // Initialize App
+        function initApp() {
+            updateDayCounter();
+            loadDailyChallenge();
+            updateProgressBar();
+            loadExistingData();
+            
+            // Load dark mode preference
+            const savedDarkMode = localStorage.getItem('trifriends_dark_mode') === 'true';
+            if (savedDarkMode) {
+                isDarkMode = true;
+                document.documentElement.classList.add('dark');
+                document.getElementById('darkModeIcon').textContent = '☀️';
+            }
+        }
+
+        // Setup Friends
+        function setupFriends() {
+            const inputs = document.querySelectorAll('#friendInputs input');
+            friends = [];
+            
+            inputs.forEach(input => {
+                if (input.value.trim()) {
+                    friends.push(input.value.trim());
+                }
+            });
+
+            if (friends.length < 2) {
+                alert('Il faut au moins 2 amis pour jouer ! 👥');
+                return;
+            }
+
+            localStorage.setItem('trifriends_group', JSON.stringify(friends));
+            populateSelects();
+            displayFriends();
+            
+            document.getElementById('welcomeScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            
+            initApp();
+        }
+
+        // Display Friends as Avatars
+        function displayFriends() {
+            const container = document.getElementById('friendsDisplay');
+            container.innerHTML = '';
+            
+            friends.forEach((friend, index) => {
+                const parts = friend.split(' ');
+                const emoji = parts[parts.length - 1];
+                const name = parts.slice(0, -1).join(' ');
+                
+                const avatar = document.createElement('div');
+                avatar.className = 'w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white font-bold border-2 border-white shadow-md';
+                avatar.textContent = emoji || name.charAt(0).toUpperCase();
+                avatar.title = name;
+                container.appendChild(avatar);
+            });
+        }
+
+        // Populate Select Dropdowns
+        function populateSelects() {
+            const selects = ['journalAuthor', 'memoryAuthor'];
+            selects.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                if (select) {
+                    select.innerHTML = '<option value="">Qui es-tu ?</option>';
+                    friends.forEach(friend => {
+                        select.innerHTML += `<option value="${friend}">${friend}</option>`;
+                    });
+                }
+            });
+        }
+
+        // Load existing data
+        function loadExistingData() {
+            const savedFriends = localStorage.getItem('trifriends_group');
+            if (savedFriends) {
+                friends = JSON.parse(savedFriends);
+                populateSelects();
+                displayFriends();
+                document.getElementById('welcomeScreen').classList.add('hidden');
+                document.getElementById('mainApp').classList.remove('hidden');
+                initApp();
+                loadAllData();
+            }
+        }
+
+        // Update Day Counter and Progress
+        function updateDayCounter() {
+            const startDate = localStorage.getItem('trifriends_start_date');
+            if (!startDate) {
+                localStorage.setItem('trifriends_start_date', new Date().toISOString());
+                currentDay = 1;
+            } else {
+                const start = new Date(startDate);
+                const today = new Date();
+                currentDay = Math.floor((today - start) / (1000 * 60 * 60 * 24)) + 1;
+                if (currentDay > 14) currentDay = 14;
+            }
+            document.getElementById('dayCounter').textContent = `Jour ${currentDay}/14`;
+        }
+
+        function updateProgressBar() {
+            const progressBar = document.getElementById('progressBar');
+            const percentage = (currentDay / 14) * 100;
+            progressBar.style.width = `${percentage}%`;
+        }
+
+        // Show Section with Navigation
+        function showSection(section) {
+            // Hide all sections
+            const sections = ['main', 'challenges', 'journal', 'gallery', 'games', 'memories'];
+            sections.forEach(s => {
+                const element = document.getElementById(s === 'main' ? 'mainApp' : s + 'Section');
+                if (element) element.classList.add('hidden');
+            });
+
+            // Update navigation
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // Show requested section
+            if (section === 'main') {
+                document.getElementById('mainApp').classList.remove('hidden');
+                document.querySelector('.nav-item').classList.add('active');
+                updateStats();
+            } else {
+                const sectionElement = document.getElementById(section + 'Section');
+                if (sectionElement) {
+                    sectionElement.classList.remove('hidden');
+                    sectionElement.classList.add('fade-in');
+                }
+                
+                // Load section-specific data
+                if (section === 'journal') loadJournalEntries();
+                if (section === 'gallery') loadPhotoGallery();
+                if (section === 'games') loadGames();
+                if (section === 'memories') loadMemories();
+                if (section === 'challenges') loadCompletedChallenges();
+            }
+        }
+
+        // Challenge Functions
+        function loadDailyChallenge() {
+            const savedChallenge = localStorage.getItem(`trifriends_challenge_day_${currentDay}`);
+            if (savedChallenge) {
+                document.getElementById('todayChallenge').textContent = savedChallenge;
+                const challengeText = document.getElementById('challengeText');
+                if (challengeText) challengeText.textContent = savedChallenge;
+            } else {
+                newChallenge();
+            }
+        }
+
+        function newChallenge() {
+            const randomChallenge = challenges[Math.floor(Math.random() * challenges.length)];
+            localStorage.setItem(`trifriends_challenge_day_${currentDay}`, randomChallenge);
+            document.getElementById('todayChallenge').textContent = randomChallenge;
+            const challengeText = document.getElementById('challengeText');
+            if (challengeText) challengeText.textContent = randomChallenge;
+        }
+
+        function completeChallenge() {
+            const completedChallenges = JSON.parse(localStorage.getItem('trifriends_completed_challenges') || '[]');
+            const currentChallenge = document.getElementById('challengeText').textContent;
+            
+            if (!completedChallenges.find(c => c.challenge === currentChallenge && c.day === currentDay)) {
+                completedChallenges.push({
+                    challenge: currentChallenge,
+                    day: currentDay,
+                    date: new Date().toLocaleDateString('fr-FR')
+                });
+                localStorage.setItem('trifriends_completed_challenges', JSON.stringify(completedChallenges));
+                
+                // Show success animation
+                const button = event.target;
+                button.innerHTML = '🎉 Bravo !';
+                button.classList.add('animate-pulse');
+                setTimeout(() => {
+                    button.innerHTML = '✅ Réussi !';
+                    button.classList.remove('animate-pulse');
+                }, 2000);
+                
+                loadCompletedChallenges();
+                updateStats();
+            }
+        }
+
+        function loadCompletedChallenges() {
+            const completed = JSON.parse(localStorage.getItem('trifriends_completed_challenges') || '[]');
+            const container = document.getElementById('completedChallenges');
+            
+            if (!container) return;
+            
+            if (completed.length === 0) {
+                container.innerHTML = '<h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-3">Défis Réalisés</h3><p class="text-gray-500 dark:text-gray-400">Aucun défi réalisé pour le moment...</p>';
+                return;
+            }
+
+            let html = '<h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-3">Défis Réalisés</h3>';
+            completed.reverse().forEach(item => {
+                html += `
+                    <div class="glass-card p-4 border-l-4 border-green-400">
+                        <div class="font-medium text-gray-800 dark:text-white">✅ ${item.challenge}</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">Jour ${item.day} - ${item.date}</div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // Journal Functions
+        function addJournalEntry() {
+            const author = document.getElementById('journalAuthor').value;
+            const text = document.getElementById('journalText').value;
+            
+            if (!author || !text) {
+                alert('Remplis tous les champs ! ✍️');
+                return;
+            }
+
+            const entries = JSON.parse(localStorage.getItem('trifriends_journal') || '[]');
+            entries.push({
+                author: author,
+                text: text,
+                date: new Date().toLocaleDateString('fr-FR'),
+                time: new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})
+            });
+
+            localStorage.setItem('trifriends_journal', JSON.stringify(entries));
+            document.getElementById('journalText').value = '';
+            loadJournalEntries();
+            updateStats();
+            
+            // Success feedback
+            const button = event.target;
+            button.innerHTML = '✨ Ajouté !';
+            setTimeout(() => {
+                button.innerHTML = '✨ Ajouter au journal';
+            }, 2000);
+        }
+
+        function loadJournalEntries() {
+            const entries = JSON.parse(localStorage.getItem('trifriends_journal') || '[]');
+            const container = document.getElementById('journalEntries');
+            
+            if (!container) return;
+            
+            if (entries.length === 0) {
+                container.innerHTML = '<h3 class="text-lg font-semibold text-gray-800 dark:text-white">Vos souvenirs</h3><p class="text-gray-500 dark:text-gray-400">Aucun souvenir partagé pour le moment...</p>';
+                return;
+            }
+
+            let html = '<h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-3">Vos souvenirs</h3>';
+            entries.reverse().forEach(entry => {
+                const parts = entry.author.split(' ');
+                const emoji = parts[parts.length - 1];
+                const name = parts.slice(0, -1).join(' ');
+                
+                html += `
+                    <div class="glass-card p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-lg">${emoji}</span>
+                                <span class="font-medium text-gray-800 dark:text-white">${name}</span>
+                            </div>
+                            <span class="text-sm text-gray-600 dark:text-gray-400">${entry.date} • ${entry.time}</span>
+                        </div>
+                        <p class="text-gray-700 dark:text-gray-300 leading-relaxed">${entry.text}</p>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // Photo Gallery Functions
+        document.addEventListener('DOMContentLoaded', function() {
+            const photoInput = document.getElementById('photoInput');
+            if (photoInput) {
+                photoInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const caption = document.getElementById('photoCaption').value || 'Photo sans légende';
+                            addPhoto(e.target.result, caption);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+        });
+
+        function addPhoto(imageData, caption) {
+            const photos = JSON.parse(localStorage.getItem('trifriends_photos') || '[]');
+            photos.push({
+                image: imageData,
+                caption: caption,
+                date: new Date().toLocaleDateString('fr-FR'),
+                time: new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})
+            });
+
+            localStorage.setItem('trifriends_photos', JSON.stringify(photos));
+            document.getElementById('photoCaption').value = '';
+            loadPhotoGallery();
+            updateStats();
+            alert('📸 Photo ajoutée !');
+        }
+
+        function loadPhotoGallery() {
+            const photos = JSON.parse(localStorage.getItem('trifriends_photos') || '[]');
+            const container = document.getElementById('photoGallery');
+            
+            if (!container) return;
+            
+            if (photos.length === 0) {
+                container.innerHTML = '<div class="col-span-2 text-center text-gray-500 dark:text-gray-400 py-8">Aucune photo pour le moment...</div>';
+                return;
+            }
+
+            let html = '';
+            photos.reverse().forEach((photo, index) => {
+                html += `
+                    <div class="relative group cursor-pointer card-hover">
+                        <img src="${photo.image}" alt="${photo.caption}" class="w-full h-40 object-cover rounded-xl">
+                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/30 rounded-xl transition-all duration-300 flex items-end">
+                            <div class="p-3 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <p class="font-medium text-sm">${photo.caption}</p>
+                                <p class="text-xs opacity-75">${photo.date}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // Games Functions
+        function addQuote() {
+            const quote = document.getElementById('quoteInput').value;
+            if (!quote) return;
+
+            const quotes = JSON.parse(localStorage.getItem('trifriends_quotes') || '[]');
+            quotes.push({
+                text: quote,
+                date: new Date().toLocaleDateString('fr-FR')
+            });
+
+            localStorage.setItem('trifriends_quotes', JSON.stringify(quotes));
+            document.getElementById('quoteInput').value = '';
+            loadQuotes();
+        }
+
+        function loadQuotes() {
+            const quotes = JSON.parse(localStorage.getItem('trifriends_quotes') || '[]');
+            const container = document.getElementById('quotes');
+            
+            if (!container) return;
+            
+            if (quotes.length === 0) {
+                container.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400">Aucune citation pour le moment...</p>';
+                return;
+            }
+
+            let html = '';
+            quotes.forEach(quote => {
+                html += `
+                    <div class="glass-card p-3">
+                        <p class="text-sm text-gray-800 dark:text-white">"${quote.text}"</p>
+                        <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">${quote.date}</p>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function addNever() {
+            const never = document.getElementById('neverInput').value;
+            if (!never) return;
+
+            const nevers = JSON.parse(localStorage.getItem('trifriends_nevers') || '[]');
+            nevers.push({
+                text: never,
+                date: new Date().toLocaleDateString('fr-FR')
+            });
+
+            localStorage.setItem('trifriends_nevers', JSON.stringify(nevers));
+            document.getElementById('neverInput').value = '';
+            loadNevers();
+        }
+
+        function loadNevers() {
+            const nevers = JSON.parse(localStorage.getItem('trifriends_nevers') || '[]');
+            const container = document.getElementById('neverList');
+            
+            if (!container) return;
+            
+            if (nevers.length === 0) {
+                container.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400">Aucun "Je n\'ai jamais" pour le moment...</p>';
+                return;
+            }
+
+            let html = '';
+            nevers.forEach(never => {
+                html += `
+                    <div class="glass-card p-3">
+                        <p class="text-sm text-gray-800 dark:text-white">Je n'ai jamais ${never.text}</p>
+                        <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">${never.date}</p>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function loadGames() {
+            loadQuotes();
+            loadNevers();
+        }
+
+        // Memory Functions
+        function addMemory() {
+            const author = document.getElementById('memoryAuthor').value;
+            const word = document.getElementById('wordOfDay').value;
+            const emoji = document.getElementById('emojiOfDay').value;
+            const moment = document.getElementById('momentOfDay').value;
+            
+            if (!author || !word || !emoji || !moment) {
+                alert('Remplis tous les champs pour créer un souvenir complet ! 💭');
+                return;
+            }
+
+            const memories = JSON.parse(localStorage.getItem('trifriends_memories') || '[]');
+            memories.push({
+                author: author,
+                word: word,
+                emoji: emoji,
+                moment: moment,
+                day: currentDay,
+                date: new Date().toLocaleDateString('fr-FR')
+            });
+
+            localStorage.setItem('trifriends_memories', JSON.stringify(memories));
+            
+            // Clear form
+            document.getElementById('wordOfDay').value = '';
+            document.getElementById('emojiOfDay').value = '';
+            document.getElementById('momentOfDay').value = '';
+            
+            loadMemories();
+            updateStats();
+            
+            // Success feedback
+            const button = event.target;
+            button.innerHTML = '💾 Sauvegardé !';
+            setTimeout(() => {
+                button.innerHTML = '💾 Sauvegarder';
+            }, 2000);
+        }
+
+        function loadMemories() {
+            const memories = JSON.parse(localStorage.getItem('trifriends_memories') || '[]');
+            const container = document.getElementById('memoriesList');
+            
+            if (!container) return;
+            
+            if (memories.length === 0) {
+                container.innerHTML = '<h3 class="text-lg font-semibold text-gray-800 dark:text-white">Vos Souvenirs</h3><p class="text-gray-500 dark:text-gray-400">Aucun souvenir collecté pour le moment...</p>';
+                return;
+            }
+
+            let html = '<h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-3">Vos Souvenirs</h3>';
+            memories.reverse().forEach(memory => {
+                const parts = memory.author.split(' ');
+                const authorEmoji = parts[parts.length - 1];
+                const authorName = parts.slice(0, -1).join(' ');
+                
+                html += `
+                    <div class="glass-card p-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-lg">${authorEmoji}</span>
+                                <span class="font-medium text-gray-800 dark:text-white">${authorName}</span>
+                                <span class="text-2xl">${memory.emoji}</span>
+                            </div>
+                            <span class="text-sm text-gray-600 dark:text-gray-400">Jour ${memory.day}</span>
+                        </div>
+                        <div class="space-y-2">
+                            <div>
+                                <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Mot du jour :</span>
+                                <p class="text-gray-800 dark:text-white font-semibold">${memory.word}</p>
+                            </div>
+                            <div>
+                                <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Moment marquant :</span>
+                                <p class="text-gray-700 dark:text-gray-300">${memory.moment}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // Stats Functions
+        function updateStats() {
+            const challenges = JSON.parse(localStorage.getItem('trifriends_completed_challenges') || '[]');
+            const photos = JSON.parse(localStorage.getItem('trifriends_photos') || '[]');
+            const memories = JSON.parse(localStorage.getItem('trifriends_memories') || '[]');
+            const journal = JSON.parse(localStorage.getItem('trifriends_journal') || '[]');
+            
+            document.getElementById('totalChallenges').textContent = challenges.length;
+            document.getElementById('totalPhotos').textContent = photos.length;
+            document.getElementById('totalMemories').textContent = memories.length;
+            document.getElementById('totalJournal').textContent = journal.length;
+        }
+
+        // Load All Data
+        function loadAllData() {
+            updateStats();
+            loadCompletedChallenges();
+            loadJournalEntries();
+            loadPhotoGallery();
+            loadGames();
+            loadMemories();
+        }
+
+        // Export to Text File
+        function exportToPDF() {
+            try {
+                // Collect all data
+                const challenges = JSON.parse(localStorage.getItem('trifriends_completed_challenges') || '[]');
+                const photos = JSON.parse(localStorage.getItem('trifriends_photos') || '[]');
+                const memories = JSON.parse(localStorage.getItem('trifriends_memories') || '[]');
+                const journal = JSON.parse(localStorage.getItem('trifriends_journal') || '[]');
+                const quotes = JSON.parse(localStorage.getItem('trifriends_quotes') || '[]');
+                const nevers = JSON.parse(localStorage.getItem('trifriends_nevers') || '[]');
+                
+                // Create text content
+                let content = `🧳 TRIFRIENDS - CARNET DE VOYAGE ALLEMAGNE 🇩🇪\n`;
+                content += `=================================================\n\n`;
+                content += `👥 GROUPE: ${friends.join(', ')}\n`;
+                content += `📅 DATE: ${new Date().toLocaleDateString('fr-FR')}\n`;
+                content += `🗓️ JOUR: ${currentDay}/14\n\n`;
+                
+                // Stats
+                content += `📊 STATISTIQUES DU VOYAGE\n`;
+                content += `========================\n`;
+                content += `✅ Défis réalisés: ${challenges.length}\n`;
+                content += `📸 Photos partagées: ${photos.length}\n`;
+                content += `💭 Souvenirs collectés: ${memories.length}\n`;
+                content += `📝 Entrées journal: ${journal.length}\n`;
+                content += `🎮 Jeux joués: ${quotes.length + nevers.length}\n\n`;
+                
+                // Add all sections content...
+                if (memories.length > 0) {
+                    content += `🎁 VOS SOUVENIRS QUOTIDIENS\n`;
+                    content += `==========================\n`;
+                    memories.forEach(memory => {
+                        content += `\n${memory.emoji} ${memory.author} - Jour ${memory.day} (${memory.date})\n`;
+                        content += `   Mot du jour: ${memory.word}\n`;
+                        content += `   Moment marquant: ${memory.moment}\n`;
+                    });
+                    content += `\n`;
+                }
+                
+                if (journal.length > 0) {
+                    content += `📝 JOURNAL SECRET DU GROUPE\n`;
+                    content += `===========================\n`;
+                    journal.forEach(entry => {
+                        content += `\n📖 ${entry.author} - ${entry.date} à ${entry.time}\n`;
+                        content += `   "${entry.text}"\n`;
+                    });
+                    content += `\n`;
+                }
+                
+                if (challenges.length > 0) {
+                    content += `🎯 DÉFIS RÉALISÉS\n`;
+                    content += `================\n`;
+                    challenges.forEach(challenge => {
+                        content += `\n✅ Jour ${challenge.day} (${challenge.date})\n`;
+                        content += `   ${challenge.challenge}\n`;
+                    });
+                    content += `\n`;
+                }
+                
+                if (quotes.length > 0) {
+                    content += `🗣️ "QUI A DIT ÇA ?"\n`;
+                    content += `==================\n`;
+                    quotes.forEach(quote => {
+                        content += `\n"${quote.text}" - ${quote.date}\n`;
+                    });
+                    content += `\n`;
+                }
+                
+                if (nevers.length > 0) {
+                    content += `🙈 "JE N'AI JAMAIS..."\n`;
+                    content += `=====================\n`;
+                    nevers.forEach(never => {
+                        content += `\nJe n'ai jamais ${never.text} - ${never.date}\n`;
+                    });
+                    content += `\n`;
+                }
+                
+                if (photos.length > 0) {
+                    content += `📸 PHOTOS PARTAGÉES\n`;
+                    content += `==================\n`;
+                    photos.forEach((photo, index) => {
+                        content += `\n${index + 1}. ${photo.caption} - ${photo.date} à ${photo.time}\n`;
+                    });
+                    content += `\n`;
+                }
+                
+                content += `\n=================================================\n`;
+                content += `📱 Généré par TRIFRIENDS - Vos souvenirs d'Allemagne\n`;
+                content += `💝 Gardez ce fichier précieusement !\n`;
+                
+                // Create and download file
+                const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `TRIFRIENDS_Carnet_Voyage_${new Date().toLocaleDateString('fr-FR').replace(/\//g, '-')}.txt`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+                
+                // Success feedback
+                const button = event.target;
+                button.innerHTML = '✅';
+                setTimeout(() => {
+                    button.innerHTML = '📄';
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Erreur export:', error);
+                alert('❌ Erreur lors de la génération du fichier.');
+            }
+        }
+
+        // Initialize when page loads
+        window.addEventListener('DOMContentLoaded', function() {
+            loadExistingData();
+        });
+    </script>
+</body>
+</html>
